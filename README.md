@@ -34,7 +34,7 @@ Please be aware that you assume full responsibility for all risks associated wit
 - Log in with the command `ssh root@<MACHINE-IP>` and enter your Rescue System password.
 - Execute the following commands:
   - `apt install git -y`
-  - `git clone https://github.com/JaRufoMarquez/Any-Windows-Contabo-VPS.git`
+  - `git clone https://github.com/LionsAsset/WinVPSContabo.git`
   - `cd Any-Windows-Contabo-VPS`
   - `chmod +x windows-install.sh`
   - `./windows-install.sh`
