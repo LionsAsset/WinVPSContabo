@@ -35,7 +35,7 @@ Please be aware that you assume full responsibility for all risks associated wit
 - Execute the following commands:
   - `apt install git -y`
   - `git clone https://github.com/LionsAsset/WinVPSContabo.git`
-  - `cd Any-Windows-Contabo-VPS`
+  - `cd WinVPSContabo`
   - `chmod +x windows-install.sh`
   - `./windows-install.sh`
   - The process takes approximately 15 minutes and completes when the ssh session disconnects due to the machine rebooting.
