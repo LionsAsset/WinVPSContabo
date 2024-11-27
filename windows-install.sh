@@ -122,7 +122,7 @@ if [[ "$download_choice" == "Y" || "$download_choice" == "y" ]]; then
         windows_url="https://archive.org/download/win-10_202411/Win10.iso"  # Replace with the actual default URL
     fi
     
-    wget -O Windows.iso --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36" "$windows_url"
+    wget -O Win10.iso --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36" "$windows_url"
     echo "Download completed"
 else
     echo "Please upload the Windows operating system image in 'root/windisk' folder and rename as 'Windows.iso'."
