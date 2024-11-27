@@ -131,7 +131,7 @@ fi
 
 # Check if the ISO was downloaded successfully
 echo "*** Check if the ISO of windows ***"
-if [ -f "Windows.iso" ]; then
+if [ -f "Win10.iso" ]; then
     mount -o loop Windows.iso winfile
     rsync -avz --progress winfile/* /mnt
     umount winfile
