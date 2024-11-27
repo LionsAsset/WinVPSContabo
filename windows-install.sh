@@ -112,12 +112,12 @@ cd /root/windisk
 mkdir -p winfile
 echo "Prepare winfile directory finish ***"
 
-# Ask if the user wants to download Windows.iso
-read -p "Do you want to download Windows.iso? (Y/N): " download_choice
+# Ask if the user wants to download Win10.iso
+read -p "Do you want to download Win10.iso? (Y/N): " download_choice
 
 if [[ "$download_choice" == "Y" || "$download_choice" == "y" ]]; then
-    # Ask for the URL to download Windows.iso
-    read -p "Enter the URL for Windows.iso (leave blank to use default): " windows_url
+    # Ask for the URL to download Win10.iso
+    read -p "Enter the URL for Win10.iso (leave blank to use default): " windows_url
     if [ -z "$windows_url" ]; then
         windows_url="https://archive.org/download/win-10_202411/Win10.iso"  # Replace with the actual default URL
     fi
@@ -125,19 +125,19 @@ if [[ "$download_choice" == "Y" || "$download_choice" == "y" ]]; then
     wget -O Win10.iso --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36" "$windows_url"
     echo "Download completed"
 else
-    echo "Please upload the Windows operating system image in 'root/windisk' folder and rename as 'Windows.iso'."
+    echo "Please upload the Windows operating system image in 'root/windisk' folder and rename as 'Win10.iso'."
     read -p "Press any key to continue once you have uploaded the image..." -n1 -s
 fi
 
 # Check if the ISO was downloaded successfully
 echo "*** Check if the ISO of windows ***"
 if [ -f "Win10.iso" ]; then
-    mount -o loop Windows.iso winfile
+    mount -o loop Win10.iso winfile
     rsync -avz --progress winfile/* /mnt
     umount winfile
     echo "Check if the ISO of windows finish ***"
 else
-    echo "Failed to download Windows.iso"
+    echo "Failed to download Win10.iso"
     read -p "Press any key to exit..." -n1 -s
     exit 1
 fi
