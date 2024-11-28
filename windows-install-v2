@@ -112,98 +112,106 @@ cd /root/windisk
 mkdir -p winfile
 echo "Prepare winfile directory finish ***"
 
-# Ask if the user wants to download Win10.iso
-read -p "Do you want to download Win10.iso? (Y/N): " download_choice
+echo "*** Prepare winfile directory ***"
+cd /root/windisk || exit 1
+mkdir -p winfile
+echo "Prepare winfile directory finish ***"
 
-if [[ "$download_choice" == "Y" || "$download_choice" == "y" ]]; then
-    # Ask for the URL to download Win10.iso
-    read -p "Enter the URL for Win10.iso (leave blank to use default): " windows_url
-    if [ -z "$windows_url" ]; then
-        windows_url="https://archive.org/download/win-10_202411/Win10.iso"  # Replace with the actual default URL
+# Verificar se o arquivo Win10.iso já existe
+if [ -f "Win10.iso" ]; then
+    read -p "Win10.iso já existe. Deseja baixar novamente? (Y/N): " redownload_win
+    if [[ "$redownload_win" == "Y" || "$redownload_win" == "y" ]]; then
+        rm -f Win10.iso
+        download_win_iso=true
+    else
+        download_win_iso=false
     fi
-    
-    wget -O Win10.iso --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36" "$windows_url"
-    echo "Download completed"
 else
-    echo "Please upload the Windows operating system image in 'root/windisk' folder and rename as 'Win10.iso'."
-    read -p "Press any key to continue once you have uploaded the image..." -n1 -s
+    download_win_iso=true
 fi
 
-# Check if the ISO was downloaded successfully
-echo "*** Check if the ISO of windows ***"
+if [ "$download_win_iso" = true ]; then
+    # Perguntar pela URL para baixar o Win10.iso
+    read -p "Digite a URL para o Win10.iso (deixe em branco para usar o padrão): " windows_url
+    windows_url="${windows_url:-https://archive.org/download/win-10_202411/Win10.iso}"
+    wget -O Win10.iso --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36" "$windows_url"
+    echo "Download de Win10.iso concluído."
+else
+    echo "Certifique-se de que o arquivo 'Win10.iso' está na pasta '/root/windisk'."
+fi
+
+# Verificar e montar a ISO do Windows
+echo "*** Verificando a ISO do Windows ***"
 if [ -f "Win10.iso" ]; then
+    mkdir -p winfile
     mount -o loop Win10.iso winfile
     rsync -avz --progress winfile/* /mnt
     umount winfile
-    echo "Check if the ISO of windows finish ***"
+    echo "Montagem da ISO do Windows concluída."
 else
-    echo "Failed to download Win10.iso"
-    read -p "Press any key to exit..." -n1 -s
+    echo "Arquivo Win10.iso não encontrado!"
     exit 1
 fi
 
-# Ask if the user wants to download the ISO image of Virtio drivers
-read -p "Do you want to download the ISO image of Virtio drivers? (Y/N): " download_choice
-
-if [[ "$download_choice" == "Y" || "$download_choice" == "y" ]]; then
-    # Ask for the URL to download Virtio.iso
-    read -p "Enter the URL for Virtio.iso (leave blank to use default): " virtio_url
-    if [ -z "$virtio_url" ]; then
-        virtio_url="https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/archive-virtio/virtio-win-0.1.266-1/virtio-win-0.1.266.iso"  # Replace with the actual default URL
+# Verificar se o arquivo Virtio.iso já existe
+if [ -f "Virtio.iso" ]; then
+    read -p "Virtio.iso já existe. Deseja baixar novamente? (Y/N): " redownload_virtio
+    if [[ "$redownload_virtio" == "Y" || "$redownload_virtio" == "y" ]]; then
+        rm -f Virtio.iso
+        download_virtio=true
+    else
+        download_virtio=false
     fi
-    
-    wget -O Virtio.iso --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36" "$virtio_url"
-    echo "Download completed"
 else
-    echo "Please upload the Windows operating system image in the 'root/windisk' folder and rename it as 'Virtio.iso'."
-    read -p "Press any key to continue once you have uploaded the image..." -n1 -s
+    download_virtio=true
 fi
 
-# Check if the ISO was downloaded successfully
-echo "*** Check if the ISO of drivers ***"
+if [ "$download_virtio" = true ]; then
+    # Perguntar pela URL para baixar Virtio.iso
+    read -p "Digite a URL para Virtio.iso (deixe em branco para usar o padrão): " virtio_url
+    virtio_url="${virtio_url:-https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/archive-virtio/virtio-win-0.1.266-1/virtio-win-0.1.266.iso}"
+    wget -O Virtio.iso "$virtio_url"
+    echo "Download de Virtio.iso concluído."
+fi
+
+# Verificar e montar a ISO dos drivers Virtio
+echo "*** Verificando a ISO dos drivers Virtio ***"
 if [ -f "Virtio.iso" ]; then
+    mkdir -p winfile /mnt/sources/virtio
     mount -o loop Virtio.iso winfile
-    mkdir -p /mnt/sources/virtio
     rsync -avz --progress winfile/* /mnt/sources/virtio
     umount winfile
-    echo "Check if the ISO of drivers finish ***"
+    echo "Montagem da ISO dos drivers Virtio concluída."
 else
-    echo "Failed to download Virtio.iso"
-    read -p "Press any key to exit..." -n1 -s
+    echo "Arquivo Virtio.iso não encontrado!"
     exit 1
 fi
 
-cd /mnt/sources
+cd /mnt/sources || exit 1
 
+# Criar arquivo cmd.txt
 touch cmd.txt
-
 echo 'add virtio /virtio_drivers' >> cmd.txt
 
-# List images in boot.wim
-echo "*** List images in boot.wim ***"
-wimlib-imagex info boot.wim
-
-# Prompt user to enter a valid image index
-echo "Please enter a valid image index from the list above:"
-read image_index
-echo "List images in boot.wim finish ***"
-
-# Check if boot.wim exists before updating
-echo "*** Rebooting the system... ***"
-if [ -f boot.wim ]; then
-    wimlib-imagex update boot.wim $image_index < cmd.txt
-    echo "Install linux-image-amd64 finish ***"
+# Listar imagens no boot.wim
+echo "*** Listando imagens no boot.wim ***"
+if [ -f "boot.wim" ]; then
+    wimlib-imagex info boot.wim
+    echo "Por favor, digite o índice de imagem válido da lista acima:"
+    read -r image_index
+    echo "*** Atualizando o boot.wim ***"
+    wimlib-imagex update boot.wim "$image_index" < cmd.txt
+    echo "Atualização do boot.wim concluída."
 else
-    echo "boot.wim not found"
-    read -p "Press any key to exit..." -n1 -s
+    echo "boot.wim não encontrado!"
+    read -p "Pressione qualquer tecla para sair..." -n1 -s
     exit 1
 fi
 
-# Ask if the user wants to reboot
-read -p "Do you want to reboot the system now? (Y/N): " reboot_choice
-
+# Perguntar se o usuário deseja reiniciar o sistema
+read -p "Deseja reiniciar o sistema agora? (Y/N): " reboot_choice
 if [[ "$reboot_choice" == "Y" || "$reboot_choice" == "y" ]]; then
     sudo reboot
 else
-    echo "Continuing without rebooting"
+    echo "Continuando sem reiniciar."
 fi
